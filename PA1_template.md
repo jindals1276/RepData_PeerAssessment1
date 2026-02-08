@@ -7,46 +7,104 @@ output:
 
 
 ## Loading and preprocessing the data
-```{r LoadData}
 
+``` r
 data <- read.csv("activity.csv", header = TRUE)
 summary(data)
+```
 
+```
+##      steps            date              interval     
+##  Min.   :  0.00   Length:17568       Min.   :   0.0  
+##  1st Qu.:  0.00   Class :character   1st Qu.: 588.8  
+##  Median :  0.00   Mode  :character   Median :1177.5  
+##  Mean   : 37.38                      Mean   :1177.5  
+##  3rd Qu.: 12.00                      3rd Qu.:1766.2  
+##  Max.   :806.00                      Max.   :2355.0  
+##  NA's   :2304
 ```
 
 ## What is mean total number of steps taken per day?
-```{r Mean Steps taken per day}
 
+``` r
 data[[2]] <- as.Date(data[[2]])
 out <- aggregate(data[[1]] ~ data[[2]], data = data, FUN = sum, na.rm = TRUE)
 names(out) <- c("date", "totalsteps")
 hist(out$totalsteps)
-mean(out$totalsteps, na.rm = TRUE)
-median(out$totalsteps, na.rm = TRUE)
+```
 
+![](PA1_template_files/figure-html/Mean Steps taken per day-1.png)<!-- -->
+
+``` r
+mean(out$totalsteps, na.rm = TRUE)
+```
+
+```
+## [1] 10766.19
+```
+
+``` r
+median(out$totalsteps, na.rm = TRUE)
+```
+
+```
+## [1] 10765
 ```
 
 
 ## What is the average daily activity pattern?
-```{r Average Daily Activity Pattern}
 
+``` r
 out <- aggregate(data[[1]] ~ data[[3]], data = data, FUN = mean, na.rm = TRUE)
 names(out) <- c("interval", "averagesteps")
 plot(out$interval, out$averagesteps, type = "l", xlab = "Interval", ylab = "Average Steps", main = "Average Steps per 5 minute interval over all days")
+```
+
+![](PA1_template_files/figure-html/Average Daily Activity Pattern-1.png)<!-- -->
+
+``` r
 i_max <- which.max(out$averagesteps)
 out[[1]][i_max]
+```
 
+```
+## [1] 835
 ```
 
 
 ## Imputing missing values
 ### My strategy is to fill in the missing values with the average of that invterval over all days
-```{r}
 
-library(dplyr)
-
+``` r
 sum(is.na(data))
+```
 
+```
+## [1] 2304
+```
+
+``` r
+library(dplyr)
+```
+
+```
+## 
+## Attaching package: 'dplyr'
+```
+
+```
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+```
+
+```
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+``` r
 #Ensure proper types
 data <- data %>% mutate(steps = as.numeric(steps), interval = as.integer(interval))
 
@@ -63,15 +121,30 @@ data_filled <- data %>% left_join(interval_avg, by = "interval") %>% mutate(step
 out <- aggregate(data_filled[[1]] ~ data_filled[[2]], data = data_filled, FUN = sum, na.rm = TRUE)
 names(out) <- c("date", "totalsteps")
 hist(out$totalsteps)
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-1-1.png)<!-- -->
+
+``` r
 mean(out$totalsteps, na.rm = TRUE)
-median(out$totalsteps, na.rm = TRUE)
+```
 
+```
+## [1] 10766.19
+```
+
+``` r
+median(out$totalsteps, na.rm = TRUE)
+```
+
+```
+## [1] 10766.19
 ```
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r}
+
+``` r
 library(dplyr)
 
 # Create factor variable for weekday/weekend
@@ -104,5 +177,6 @@ ggplot(avg_by_interval, aes(x = interval, y = avg_steps)) +
     panel.grid.minor = element_blank(),
     strip.text = element_text(face = "bold")
   )
-
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
